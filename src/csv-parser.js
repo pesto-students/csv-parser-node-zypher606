@@ -1,4 +1,5 @@
 const fs = require("fs");
+const { Transform } = require("stream");
 
 function csvToJson(data, withHeaders = false, headerToUppercase = false, delimiter = ',') {
     let rows = data.split('\r\n').map(item => item.split(delimiter));
@@ -29,9 +30,45 @@ function jsonToCsv(data, delimiter = ',') {
     return [headers, ...rows].join('\r\n');
 }
 
+function csvToJsonStream(inStream, delimitter = ',') {
+    const outputstream = new Transform(); 
+
+    let remainder = '';
+    let lineNumber = 0;
+    inStream.on('data', (buf) => {
+        const lines = (remainder + buf).split(/\r?\n/g);
+        remainder = lines.pop();
+        for (const line of lines) {
+            let op = '';
+            if (lineNumber !== 0) {
+                const items = line.split(delimitter);
+                op = JSON.stringify(items);
+            } else {
+                op = '[';
+            }
+            lineNumber += 1;
+            outputstream.push(op);
+        }
+    });
+    inStream.on('close', () => {
+        const items = remainder.split(delimitter);
+        op = JSON.stringify(items);
+        outputstream.push(op + ']');
+    });
+
+    return outputstream;
+}
+
 module.exports.csvToJsonSync = (filepath, withHeaders = false, headerToUppercase = false, delimiter = ',') => {
     const content = fs.readFileSync(filepath);
     return JSON.stringify(csvToJson(content.toString(), withHeaders, headerToUppercase, delimiter));
+}
+
+module.exports.csvToJsonStreamAsync = (filepath, withHeaders = false, headerToUppercase = false, delimiter = ',') => {
+    const stream = fs.createReadStream(filepath);
+    if (!withHeaders) {
+        return csvToJsonStream(stream);
+    }
 }
 
 module.exports.jsonToCsvSync = (filepath, delimiter = ',') => {
