@@ -10,5 +10,8 @@ console.log(csvToJsonSync(filepathCsv, true))
 console.log("\n\n\n====== JSON to CSV SYNC =====")
 console.log(jsonToCsvSync(filepathJson))
 
-console.log("\n\n\n====== CSV to JSON ASYNC STREAM =====")
-csvToJsonStreamAsync(filepathCsv).pipe(process.stdout)
+// console.log("\n\n\n====== CSV to JSON ASYNC STREAM =====")
+// csvToJsonStreamAsync(filepathCsv).pipe(process.stdout)
+
+console.log("\n\n\n====== CSV to JSON ASYNC STREAM with header =====")
+csvToJsonStreamAsync(filepathCsv, true).pipe(process.stdout)
