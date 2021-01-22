@@ -6,7 +6,7 @@ Aim is to write a package which converts CSV text input into arrays or objects. 
 > npm run demo
 
 ## About
-1. csv-parser.js conatins all the methods
+1. csv-parser.js conatins all the methods with sync and async stream utils
 2. index.js simply imports and runs according to the desired case
 
 ## Input
